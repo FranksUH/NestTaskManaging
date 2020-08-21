@@ -4,6 +4,7 @@ import { CreateTaskDTO } from './dto/createTaskDTO';
 import { UpdateDTO } from './dto/updateDTO';
 import { SearchTaskDTO } from './dto/searchTaskDTO';
 import { SearchTaskResultDTO } from './dto/searchTaskResultDTO';
+import * as uuid from 'uuid';
 
 @Injectable()
 export class TasksService 
@@ -28,7 +29,7 @@ export class TasksService
             title,
             description,
             status: TaskStatus.OPEN,
-            id: '1'
+            id: uuid.v1()
         }
         this.tasks.push(newTask);
         return newTask;
