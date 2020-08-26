@@ -1,4 +1,4 @@
-import {Task} from '../tasks.model';
+import {Task} from '../tasks.entity';
 
 export class SearchTaskResultDTO{
     tasks: Task[];

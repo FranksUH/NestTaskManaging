@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { Task } from './tasks.model';
+import { Task } from './tasks.entity';
 import { CreateTaskDTO } from './dto/createTaskDTO';
 import { UpdateDTO } from './dto/updateDTO';
 import { SearchTaskDTO } from './dto/searchTaskDTO';
@@ -15,43 +15,43 @@ export class TasksController
     
     @Get()
     @UsePipes(ValidationPipe)
-    searchTasks(@Query(TaskStatusValidatorPipe) filterData: SearchTaskDTO
-        ): SearchTaskResultDTO
+    async searchTasks(@Query(TaskStatusValidatorPipe) filterData: SearchTaskDTO
+        ): Promise<SearchTaskResultDTO>
     {
         console.log("Searching...")
-        return this.taskService.searchTask(filterData);
+        return await this.taskService.searchTask(filterData);
     }
 
     @Get('/:id')
-    findById(@Param('id') id: string): Task
+    async findById(@Param('id') id: string): Promise<Task>
     {
-        return this.taskService.findById(id);
+        return await this.taskService.findById(id);
     }
 
     @Get()
-    getAllTasks(): Task[]
+    async getAllTasks(): Promise<Task[]>
     {
         console.log("All...")
-        return this.taskService.getAllTasks();
+        return await this.taskService.getAllTasks();
     }
 
     @Post()
     @UsePipes(ValidationPipe)
-    createTask(@Body() createDto: CreateTaskDTO): Task
+    async createTask(@Body() createDto: CreateTaskDTO): Promise<Task>
     {
-        return this.taskService.createTask(createDto);
+        return await this.taskService.createTask(createDto);
     }
 
     @Delete('/:id')
-    deleteTask(@Param('id') id: string): void
+    async deleteTask(@Param('id') id: string): Promise<void>
     {
-        this.taskService.deleteTask(id);
+       await this.taskService.deleteTask(id);
     }
 
     @Put()
     @UsePipes(ValidationPipe)
-    updateTask(@Body(TaskStatusValidatorPipe) updateDto: UpdateDTO): Task
+    async updateTask(@Body(TaskStatusValidatorPipe) updateDto: UpdateDTO): Promise<Task>
     {
-        return this.taskService.updateTask(updateDto);
+        return await this.taskService.updateTask(updateDto);
     }    
 }

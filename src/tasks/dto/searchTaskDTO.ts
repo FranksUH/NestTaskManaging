@@ -1,21 +1,16 @@
-import { TaskStatus } from "../tasks.model";
-import { IsOptional, IsNumber } from "class-validator";
+import { TaskStatus } from "../task-status.enum";
+import { IsOptional } from "class-validator";
 
 export class SearchTaskDTO{
     @IsOptional()
-    title: string;
+    filterText: string;
 
-    @IsOptional()
-    description: string;
-    
     @IsOptional()
     status: TaskStatus;
 
     @IsOptional()
-    @IsNumber()
     skip: number
 
     @IsOptional()
-    @IsNumber()
     top: number
 }
