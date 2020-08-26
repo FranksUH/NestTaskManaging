@@ -1,20 +1,25 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Task } from './tasks.model';
 import { CreateTaskDTO } from './dto/createTaskDTO';
 import { UpdateDTO } from './dto/updateDTO';
 import { SearchTaskDTO } from './dto/searchTaskDTO';
 import { SearchTaskResultDTO } from './dto/searchTaskResultDTO';
+import { TaskStatusValidatorPipe } from './pipes/statusValidatorPipe';
 
 @Controller('tasks')
 export class TasksController 
 {
     constructor(private taskService: TasksService){}
 
+    
     @Get()
-    getAllTasks(): Task[]
+    @UsePipes(ValidationPipe)
+    searchTasks(@Query(TaskStatusValidatorPipe) filterData: SearchTaskDTO
+        ): SearchTaskResultDTO
     {
-        return this.taskService.getAllTasks();
+        console.log("Searching...")
+        return this.taskService.searchTask(filterData);
     }
 
     @Get('/:id')
@@ -23,7 +28,15 @@ export class TasksController
         return this.taskService.findById(id);
     }
 
+    @Get()
+    getAllTasks(): Task[]
+    {
+        console.log("All...")
+        return this.taskService.getAllTasks();
+    }
+
     @Post()
+    @UsePipes(ValidationPipe)
     createTask(@Body() createDto: CreateTaskDTO): Task
     {
         return this.taskService.createTask(createDto);
@@ -36,17 +49,9 @@ export class TasksController
     }
 
     @Put()
-    updateTask(@Body() updateDto: UpdateDTO): Task
+    @UsePipes(ValidationPipe)
+    updateTask(@Body(TaskStatusValidatorPipe) updateDto: UpdateDTO): Task
     {
-        return this.updateTask(updateDto);
-    }
-
-    @Get('/:skip/:top/search')
-    searchTasks(
-        @Query() filterData: SearchTaskDTO,
-        @Param('skip') skip: number,
-        @Param('top') top: number): SearchTaskResultDTO
-    {
-        return this.searchTasks(filterData, skip, top);
-    }
+        return this.taskService.updateTask(updateDto);
+    }    
 }
