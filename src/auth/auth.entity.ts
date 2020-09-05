@@ -1,6 +1,8 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, Unique, OneToMany } from "typeorm";
+import { Task } from "src/tasks/tasks.entity";
 
 @Entity()
+@Unique(['username'])
 export class User extends BaseEntity
 {
     @PrimaryGeneratedColumn('uuid')
@@ -11,4 +13,10 @@ export class User extends BaseEntity
     
     @Column()
     password: string;    
+
+    @Column()
+    salt: string;
+
+    @OneToMany(type=> Task, task=> task.user, {eager: true})
+    tasks: Task[]
 }

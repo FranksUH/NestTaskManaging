@@ -4,22 +4,26 @@ import { CreateTaskDTO } from "./dto/createTaskDTO";
 import { TaskStatus } from "./task-status.enum";
 import { SearchTaskDTO } from "./dto/searchTaskDTO";
 import { SearchTaskResultDTO } from "./dto/searchTaskResultDTO";
+import { User } from "src/auth/auth.entity";
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task>
 {
-    async CreateTask(taskDto: CreateTaskDTO): Promise<Task>
+    async CreateTask(taskDto: CreateTaskDTO, user: string): Promise<Task>
     {
         const task = new Task();
         task.description = taskDto.description;
         task.title = taskDto.title;
-        task.status = TaskStatus.OPEN
+        task.status = TaskStatus.OPEN;
+        task.userId = user
 
         await task.save();
+        delete task.userId;
+        
         return task;
     }
 
-    async FilterTasks(searchDto: SearchTaskDTO): Promise<SearchTaskResultDTO>
+    async FilterTasks(searchDto: SearchTaskDTO, userId: string): Promise<SearchTaskResultDTO>
     {
         const { filterText, status, skip, top } = searchDto;
         const query = this.createQueryBuilder('task');
@@ -29,6 +33,8 @@ export class TaskRepository extends Repository<Task>
         if(status)
             query.andWhere('task.status = :status',{status});
 
+
+        query.andWhere('task.userId = :userId', {userId});
 
         const length = await query.getCount();
         if(skip)

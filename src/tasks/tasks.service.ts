@@ -9,13 +9,17 @@ import * as uuid from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskRepository } from './tasks.repository';
 import { QueryBuilder } from 'typeorm';
+import { User } from 'src/auth/auth.entity';
+import { UserRepository } from 'src/auth/auth.repository';
 
 @Injectable()
 export class TasksService 
 {
     constructor(
         @InjectRepository(TaskRepository)
-        private taskRepository: TaskRepository 
+        private taskRepository: TaskRepository,
+        @InjectRepository(UserRepository)
+        private userRepo: UserRepository
     )
     {}
 
@@ -24,28 +28,28 @@ export class TasksService
         return await this.taskRepository.find();        
     }
 
-    async findById(id: string): Promise<Task>
+    async findById(id: string, userId: string): Promise<Task>
     {
-        const found = await this.taskRepository.findOne(id);
+        const found = await this.taskRepository.findOne({id, userId});
         if(!found)
             throw new NotFoundException("Can't find task with Id ",id);
         return found;
     }
 
-    async createTask(createDto: CreateTaskDTO): Promise<Task>
+    async createTask(createDto: CreateTaskDTO, userId: string): Promise<Task>
     {        
-        return await this.taskRepository.CreateTask(createDto);
+        return await this.taskRepository.CreateTask(createDto, userId);
     }
 
-    async deleteTask(id: string): Promise<void>
+    async deleteTask(id: string, userId: string): Promise<void>
     {
-        const toDelete = await this.findById(id);
+        const toDelete = await this.findById(id, userId);
         await this.taskRepository.remove(toDelete);
     }
 
-    async updateTask(updateDto: UpdateDTO): Promise<Task>
+    async updateTask(updateDto: UpdateDTO, userId: string): Promise<Task>
     {
-        let toChange = await this.findById(updateDto.id);
+        let toChange = await this.findById(updateDto.id, userId);
         if(updateDto.description)
             toChange.description = updateDto.description;
         if(updateDto.title)
@@ -56,8 +60,8 @@ export class TasksService
         return await this.taskRepository.save(toChange);
     }
 
-    async searchTask(searchDto: SearchTaskDTO): Promise<SearchTaskResultDTO>
+    async searchTask(searchDto: SearchTaskDTO, userId: string): Promise<SearchTaskResultDTO>
     {
-        return await this.taskRepository.FilterTasks(searchDto);
+        return await this.taskRepository.FilterTasks(searchDto, userId);
     }
 }
